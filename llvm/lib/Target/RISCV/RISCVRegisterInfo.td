@@ -309,7 +309,7 @@ let RegAltNameIndices = [ABIRegAltName] in {
 
 // The order of registers represents the preferred allocation sequence,
 // meaning caller-save regs are listed before callee-save.
-def PosR16 : RegisterClass<"RISCV", [f16], 16, (add
+def PosR16 : RegisterClass<"RISCV", [i16], 16, (add
     (sequence "P%u_H", 0, 7),
     (sequence "P%u_H", 10, 17),
     (sequence "P%u_H", 28, 31),
@@ -317,7 +317,7 @@ def PosR16 : RegisterClass<"RISCV", [f16], 16, (add
     (sequence "P%u_H", 18, 27)
 )>;
 
-def PosR32 : RegisterClass<"RISCV", [f32], 32, (add
+def PosR32 : RegisterClass<"RISCV", [i32], 32, (add
     (sequence "P%u_F", 0, 7),
     (sequence "P%u_F", 10, 17),
     (sequence "P%u_F", 28, 31),
@@ -325,7 +325,7 @@ def PosR32 : RegisterClass<"RISCV", [f32], 32, (add
     (sequence "P%u_F", 18, 27)
 )>;
 
-def PosR64 : RegisterClass<"RISCV", [f64], 64, (add
+def PosR64 : RegisterClass<"RISCV", [i64], 64, (add
     (sequence "P%u_D", 0, 7),
     (sequence "P%u_D", 10, 17),
     (sequence "P%u_D", 28, 31),

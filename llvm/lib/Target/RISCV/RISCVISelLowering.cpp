@@ -95,9 +95,6 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   if (Subtarget.hasStdExtD()) {
     addRegisterClass(MVT::f64, &RISCV::FPR64RegClass);
   }
-  if (Subtarget.hasExtXPosit()) {
-    addRegisterClass(MVT::f32, &RISCV::PosR32RegClass);
-  }
 
   static const MVT::SimpleValueType BoolVecVTs[] = {
       MVT::nxv1i1,  MVT::nxv2i1,  MVT::nxv4i1, MVT::nxv8i1,
@@ -4678,7 +4675,7 @@ SDValue RISCVTargetLowering::LowerINTRINSIC_VOID(SDValue Op,
   }
   case Intrinsic::riscv_qclr: {
     SDLoc DL(Op);
-    // The result of INTRINSIC_VOID is the Chain result with type MVT::Other. 
+    // The result of INTRINSIC_VOID is the Chain result with type MVT::Other.
     // The first operand is the chain input also with type MVT::Other.
     return DAG.getNode(RISCVISD::QCLR, DL, MVT::Other, Op->getOperand(0));
   }
@@ -10214,6 +10211,7 @@ RISCVTargetLowering::getConstraintType(StringRef Constraint) const {
     default:
       break;
     case 'f':
+    case 'p':
       return C_RegisterClass;
     case 'I':
     case 'J':
@@ -10253,7 +10251,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
         return std::make_pair(0U, &RISCV::FPR64RegClass);
       break;
     case 'p':
-      if (Subtarget.hasExtXPosit() && VT == MVT::f32)
+      if (Subtarget.hasExtXPosit() && VT == MVT::i32)
         return std::make_pair(0U, &RISCV::PosR32RegClass);
       break;
     default:

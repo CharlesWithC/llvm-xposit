@@ -264,7 +264,21 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
     return;
   }
 
-  // FPR->FPR copies and VR->VR copies.
+  // POS/GPR->POS/GPR copies.
+  // Return early to avoid generic two-operand BuildMI.
+  if (RISCV::PosR32RegClass.contains(DstReg) &&
+      RISCV::GPRRegClass.contains(SrcReg)) {
+    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_W_X), DstReg)
+      .addReg(SrcReg, getKillRegState(KillSrc));
+    return;
+  } else if (RISCV::GPRRegClass.contains(DstReg) &&
+             RISCV::PosR32RegClass.contains(SrcReg)) {
+    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_X_W), DstReg)
+      .addReg(SrcReg, getKillRegState(KillSrc));
+    return;
+  }
+
+  // FPR->FPR copies, POS->POS copies and VR->VR copies.
   unsigned Opc;
   bool IsScalableVector = true;
   unsigned NF = 1;
@@ -472,6 +486,9 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
   } else if (RISCV::FPR64RegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::FSD;
     IsScalableVector = false;
+  } else if (RISCV::PosR32RegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::PSW;
+    IsScalableVector = false;
   } else if (RISCV::VRRegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::PseudoVSPILL_M1;
     IsZvlsseg = false;
@@ -565,6 +582,9 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
     IsScalableVector = false;
   } else if (RISCV::FPR64RegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::FLD;
+    IsScalableVector = false;
+  } else if (RISCV::PosR32RegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::PLW;
     IsScalableVector = false;
   } else if (RISCV::VRRegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::PseudoVRELOAD_M1;

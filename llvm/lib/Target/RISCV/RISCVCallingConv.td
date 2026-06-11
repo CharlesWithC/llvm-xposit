@@ -18,11 +18,13 @@ def CSR_ILP32_LP64
 
 def CSR_ILP32F_LP64F
     : CalleeSavedRegs<(add CSR_ILP32_LP64,
-                       F8_F, F9_F, (sequence "F%u_F", 18, 27))>;
+                       F8_F, F9_F, (sequence "F%u_F", 18, 27),
+                       P8_F, P9_F, (sequence "P%u_F", 18, 27))>;
 
 def CSR_ILP32D_LP64D
     : CalleeSavedRegs<(add CSR_ILP32_LP64,
-                       F8_D, F9_D, (sequence "F%u_D", 18, 27))>;
+                       F8_D, F9_D, (sequence "F%u_D", 18, 27),
+                       P8_D, P9_D, (sequence "P%u_D", 18, 27))>;
 
 // Needed for implementation of RISCVRegisterInfo::getNoPreservedMask()
 def CSR_NoRegs : CalleeSavedRegs<(add)>;
@@ -48,7 +50,13 @@ def CSR_XLEN_F32_Interrupt: CalleeSavedRegs<(add X1,
     (sequence "F%u_F", 12, 17),
     (sequence "F%u_F", 28, 31),
     (sequence "F%u_F", 8, 9),
-    (sequence "F%u_F", 18, 27))>;
+    (sequence "F%u_F", 18, 27),
+    (sequence "P%u_F", 0, 7),
+    (sequence "P%u_F", 10, 11),
+    (sequence "P%u_F", 12, 17),
+    (sequence "P%u_F", 28, 31),
+    (sequence "P%u_F", 8, 9),
+    (sequence "P%u_F", 18, 27))>;
 
 // Same as CSR_Interrupt, but including all 64-bit FP registers.
 def CSR_XLEN_F64_Interrupt: CalleeSavedRegs<(add X1,
@@ -62,4 +70,10 @@ def CSR_XLEN_F64_Interrupt: CalleeSavedRegs<(add X1,
     (sequence "F%u_D", 12, 17),
     (sequence "F%u_D", 28, 31),
     (sequence "F%u_D", 8, 9),
-    (sequence "F%u_D", 18, 27))>;
+    (sequence "F%u_D", 18, 27),
+    (sequence "P%u_D", 0, 7),
+    (sequence "P%u_D", 10, 11),
+    (sequence "P%u_D", 12, 17),
+    (sequence "P%u_D", 28, 31),
+    (sequence "P%u_D", 8, 9),
+    (sequence "P%u_D", 18, 27))>;

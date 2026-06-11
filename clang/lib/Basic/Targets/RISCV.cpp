@@ -85,6 +85,10 @@ bool RISCVTargetInfo::validateAsmConstraint(
     // A floating-point register.
     Info.setAllowsRegister();
     return true;
+  case 'p':
+    // A posit floating-point register.
+    Info.setAllowsRegister();
+    return true;
   case 'A':
     // An address that is held in a general-purpose register.
     Info.setAllowsMemory();
@@ -110,6 +114,9 @@ std::string RISCVTargetInfo::convertConstraint(const char *&Constraint) const {
     R = std::string("^") + std::string(Constraint, 2);
     Constraint += 1;
     break;
+  case 'p':
+    // pass through posit b/c TargetInfo::convertConstraint turns it into GPR
+    return std::string(1, *Constraint);
   default:
     R = TargetInfo::convertConstraint(Constraint);
     break;
