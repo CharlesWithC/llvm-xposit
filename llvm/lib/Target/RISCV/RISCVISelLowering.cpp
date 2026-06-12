@@ -95,6 +95,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   if (Subtarget.hasStdExtD()) {
     addRegisterClass(MVT::f64, &RISCV::FPR64RegClass);
   }
+  // Do not register i16/i32/i64 for posit register - that causes a conflict.
 
   static const MVT::SimpleValueType BoolVecVTs[] = {
       MVT::nxv1i1,  MVT::nxv2i1,  MVT::nxv4i1, MVT::nxv8i1,
