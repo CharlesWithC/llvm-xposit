@@ -278,6 +278,20 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
     return;
   }
 
+  // POS/GPR->POS/GPR copies for PosR16.
+  // Note: HEEPatia uses same instructions as Pos32 for Pos16.
+  if (RISCV::PosR16RegClass.contains(DstReg) &&
+      RISCV::GPRRegClass.contains(SrcReg)) {
+    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_W_X), DstReg)
+      .addReg(SrcReg, getKillRegState(KillSrc));
+    return;
+  } else if (RISCV::GPRRegClass.contains(DstReg) &&
+              RISCV::PosR16RegClass.contains(SrcReg)) {
+    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_X_W), DstReg)
+      .addReg(SrcReg, getKillRegState(KillSrc));
+    return;
+  }
+
   // FPR->FPR copies, POS->POS copies and VR->VR copies.
   unsigned Opc;
   bool IsScalableVector = true;
@@ -292,6 +306,9 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
     IsScalableVector = false;
   } else if (RISCV::FPR64RegClass.contains(DstReg, SrcReg)) {
     Opc = RISCV::FSGNJ_D;
+    IsScalableVector = false;
+  } else if (RISCV::PosR16RegClass.contains(DstReg, SrcReg)) {
+    Opc = RISCV::PSGNJ_S;
     IsScalableVector = false;
   } else if (RISCV::PosR32RegClass.contains(DstReg, SrcReg)) {
     Opc = RISCV::PSGNJ_S;
@@ -486,6 +503,9 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
   } else if (RISCV::FPR64RegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::FSD;
     IsScalableVector = false;
+  } else if (RISCV::PosR16RegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::PSW;
+    IsScalableVector = false;
   } else if (RISCV::PosR32RegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::PSW;
     IsScalableVector = false;
@@ -582,6 +602,9 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
     IsScalableVector = false;
   } else if (RISCV::FPR64RegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::FLD;
+    IsScalableVector = false;
+  } else if (RISCV::PosR16RegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::PLW;
     IsScalableVector = false;
   } else if (RISCV::PosR32RegClass.hasSubClassEq(RC)) {
     Opcode = RISCV::PLW;

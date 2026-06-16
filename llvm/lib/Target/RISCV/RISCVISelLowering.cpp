@@ -95,8 +95,6 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   if (Subtarget.hasStdExtD()) {
     addRegisterClass(MVT::f64, &RISCV::FPR64RegClass);
   }
-  // Do not register i16/i32/i64 for posit register - that causes a conflict.
-
   static const MVT::SimpleValueType BoolVecVTs[] = {
       MVT::nxv1i1,  MVT::nxv2i1,  MVT::nxv4i1, MVT::nxv8i1,
       MVT::nxv16i1, MVT::nxv32i1, MVT::nxv64i1};
@@ -9252,16 +9250,6 @@ static bool CC_RISCV_FastCC(const DataLayout &DL, RISCVABI::ABI ABI,
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
     }
-
-    static const MCPhysReg PosR32List[] = {
-        RISCV::P10_F, RISCV::P11_F, RISCV::P12_F, RISCV::P13_F, RISCV::P14_F,
-        RISCV::P15_F, RISCV::P16_F, RISCV::P17_F, RISCV::P0_F,  RISCV::P1_F,
-        RISCV::P2_F,  RISCV::P3_F,  RISCV::P4_F,  RISCV::P5_F,  RISCV::P6_F,
-        RISCV::P7_F,  RISCV::P28_F, RISCV::P29_F, RISCV::P30_F, RISCV::P31_F};
-    if (unsigned Reg = State.AllocateReg(PosR32List)) {
-      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
-      return false;
-    }
   }
 
   if (LocVT == MVT::f64) {
@@ -9344,14 +9332,6 @@ static bool CC_RISCV_GHC(unsigned ValNo, MVT ValVT, MVT LocVT,
                                           RISCV::F18_F, RISCV::F19_F,
                                           RISCV::F20_F, RISCV::F21_F};
     if (unsigned Reg = State.AllocateReg(FPR32List)) {
-      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
-      return false;
-    }
-
-    static const MCPhysReg PosR32List[] = {RISCV::P8_F, RISCV::P9_F,
-                                           RISCV::P18_F, RISCV::P19_F,
-                                           RISCV::P20_F, RISCV::P21_F};
-    if (unsigned Reg = State.AllocateReg(PosR32List)) {
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
     }
@@ -10252,6 +10232,8 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
         return std::make_pair(0U, &RISCV::FPR64RegClass);
       break;
     case 'p':
+      if (Subtarget.hasExtXPosit() && VT == MVT::i16)
+        return std::make_pair(0U, &RISCV::PosR16RegClass);
       if (Subtarget.hasExtXPosit() && VT == MVT::i32)
         return std::make_pair(0U, &RISCV::PosR32RegClass);
       break;
