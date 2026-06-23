@@ -266,29 +266,28 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
 
   // POS/GPR->POS/GPR copies.
   // Return early to avoid generic two-operand BuildMI.
-  if (RISCV::PosR32RegClass.contains(DstReg) &&
-      RISCV::GPRRegClass.contains(SrcReg)) {
+  if ((RISCV::PosR32RegClass.contains(DstReg) ||
+       RISCV::PosR16RegClass.contains(DstReg)) &&
+       RISCV::GPRRegClass.contains(SrcReg)) {
     BuildMI(MBB, MBBI, DL, get(RISCV::PMV_W_X), DstReg)
       .addReg(SrcReg, getKillRegState(KillSrc));
     return;
   } else if (RISCV::GPRRegClass.contains(DstReg) &&
-             RISCV::PosR32RegClass.contains(SrcReg)) {
-    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_X_W), DstReg)
-      .addReg(SrcReg, getKillRegState(KillSrc));
-    return;
-  }
+            (RISCV::PosR32RegClass.contains(SrcReg) ||
+             RISCV::PosR16RegClass.contains(SrcReg))) {
+    if (STI.hasPMVXWHazard()) {
+      BuildMI(MBB, MBBI, DL, get(RISCV::PSW))
+        .addReg(SrcReg, getKillRegState(KillSrc))
+        .addReg(RISCV::X2)   // sp
+        .addImm(-4);
 
-  // POS/GPR->POS/GPR copies for PosR16.
-  // Note: HEEPatia uses same instructions as Pos32 for Pos16.
-  if (RISCV::PosR16RegClass.contains(DstReg) &&
-      RISCV::GPRRegClass.contains(SrcReg)) {
-    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_W_X), DstReg)
-      .addReg(SrcReg, getKillRegState(KillSrc));
-    return;
-  } else if (RISCV::GPRRegClass.contains(DstReg) &&
-              RISCV::PosR16RegClass.contains(SrcReg)) {
-    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_X_W), DstReg)
-      .addReg(SrcReg, getKillRegState(KillSrc));
+      BuildMI(MBB, MBBI, DL, get(RISCV::LW), DstReg)
+        .addReg(RISCV::X2)
+        .addImm(-4);
+    } else {
+      BuildMI(MBB, MBBI, DL, get(RISCV::PMV_X_W), DstReg)
+        .addReg(SrcReg, getKillRegState(KillSrc));
+    }
     return;
   }
 

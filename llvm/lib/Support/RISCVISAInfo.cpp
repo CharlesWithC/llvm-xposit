@@ -90,6 +90,7 @@ static const RISCVSupportedExtension SupportedExtensions[] = {
     {"zve64d", RISCVExtensionVersion{1, 0}},
 
     {"xposit", RISCVExtensionVersion{1, 0}},
+    {"xposithazardpmvxw", RISCVExtensionVersion{1, 0}},
 };
 
 static const RISCVSupportedExtension SupportedExperimentalExtensions[] = {
