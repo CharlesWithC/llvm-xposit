@@ -351,8 +351,8 @@ def FeatureExtXPosit
 def HasExtXPosit : Predicate<"Subtarget->hasExtXPosit()">,
                              AssemblerPredicate<(all_of FeatureExtXPosit),
                              "'XPosit' (Single-Precision Posit)">;
-def FeaturePMVXWHazard : SubtargetFeature<"xposithazardpmvxw", "HasPMVXWHazard", "true",
-                                        "Use PSW+LW instead of PMV_X_W">;
+def FeatureAvoidPMV : SubtargetFeature<"xpositnopmv", "AvoidPMV", "true",
+                                        "Avoid PMV and route data through memory">;
 
 def Feature64Bit
     : SubtargetFeature<"64bit", "HasRV64", "true", "Implements RV64">;

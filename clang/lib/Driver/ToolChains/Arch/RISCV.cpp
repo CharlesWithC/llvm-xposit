@@ -150,10 +150,10 @@ void riscv::getRISCVTargetFeatures(const Driver &D, const llvm::Triple &Triple,
     Features.push_back("-save-restore");
 
   // Possible hardware hazard: pmv.x.w may have latency / async behavior
-  if (Args.hasFlag(options::OPT_mpmvxw_hazard, options::OPT_mno_pmvxw_hazard, false))
-    Features.push_back("+xposithazardpmvxw");
+  if (Args.hasFlag(options::OPT_mavoid_pmv, options::OPT_mno_avoid_pmv, false))
+    Features.push_back("+xpositnopmv");
   else
-    Features.push_back("-xposithazardpmvxw");
+    Features.push_back("-xpositnopmv");
 
   // Now add any that the user explicitly requested on the command line,
   // which may override the defaults.

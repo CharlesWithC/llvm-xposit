@@ -3309,10 +3309,10 @@ def mcmodel_EQ_medany : Flag<["-"], "mcmodel=medany">, Group<m_riscv_Features_Gr
   HelpText<"Equivalent to -mcmodel=medium, compatible with RISC-V gcc.">;
 def menable_experimental_extensions : Flag<["-"], "menable-experimental-extensions">, Group<m_Group>,
   HelpText<"Enable use of experimental RISC-V extensions.">;
-def mpmvxw_hazard : Flag<["-"], "mpmvxw-hazard">, Group<m_Group>,
-  HelpText<"Assume hazard on pmv.x.w and use psw+lw instead.">;
-def mno_pmvxw_hazard : Flag<["-"], "mno-pmvxw-hazard">, Group<m_Group>,
-  HelpText<"Assume no hazard on pmv.x.w and use it normally.">;
+def mavoid_pmv : Flag<["-"], "mavoid-pmv">, Group<m_Group>,
+  HelpText<"Avoid pmv and route data through memory.">;
+def mno_avoid_pmv : Flag<["-"], "mno-avoid-pmv">, Group<m_Group>,
+  HelpText<"Use pmv normally to move data between PosR and GPR.">;
 
 def munaligned_access : Flag<["-"], "munaligned-access">, Group<m_arm_Features_Group>,
   HelpText<"Allow memory accesses to be unaligned (AArch32/AArch64 only)">;

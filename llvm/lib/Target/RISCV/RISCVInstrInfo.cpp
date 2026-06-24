@@ -269,13 +269,23 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
   if ((RISCV::PosR32RegClass.contains(DstReg) ||
        RISCV::PosR16RegClass.contains(DstReg)) &&
        RISCV::GPRRegClass.contains(SrcReg)) {
-    BuildMI(MBB, MBBI, DL, get(RISCV::PMV_W_X), DstReg)
-      .addReg(SrcReg, getKillRegState(KillSrc));
+    if (STI.avoidPMV()) {
+      BuildMI(MBB, MBBI, DL, get(RISCV::SW))
+        .addReg(SrcReg, getKillRegState(KillSrc))
+        .addReg(RISCV::X2)   // sp
+        .addImm(-4);
+      BuildMI(MBB, MBBI, DL, get(RISCV::PLW), DstReg)
+        .addReg(RISCV::X2)
+        .addImm(-4);
+    } else {
+      BuildMI(MBB, MBBI, DL, get(RISCV::PMV_W_X), DstReg)
+        .addReg(SrcReg, getKillRegState(KillSrc));
+    }
     return;
   } else if (RISCV::GPRRegClass.contains(DstReg) &&
             (RISCV::PosR32RegClass.contains(SrcReg) ||
              RISCV::PosR16RegClass.contains(SrcReg))) {
-    if (STI.hasPMVXWHazard()) {
+    if (STI.avoidPMV()) {
       BuildMI(MBB, MBBI, DL, get(RISCV::PSW))
         .addReg(SrcReg, getKillRegState(KillSrc))
         .addReg(RISCV::X2)   // sp
